@@ -138,6 +138,12 @@
     titleLink.textContent = item.headline || item.url;
     title.appendChild(titleLink);
     body.appendChild(title);
+    if (item.readTime) {
+      var read = document.createElement("p");
+      read.className = "read-time";
+      read.textContent = item.readTime;
+      body.appendChild(read);
+    }
     if (item.summary) {
       var summary = document.createElement("p");
       summary.className = "story-summary";
