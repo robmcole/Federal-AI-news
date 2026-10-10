@@ -48,6 +48,10 @@ ITEM_RE = re.compile(
     r'<p><strong>(<a href="[^"]+">.*?</a>)</strong>\s*(.*?)</p>',
     re.DOTALL,
 )
+READ_TIME_RE = re.compile(
+    r"^\(\s*(\d+)\s*(?:-|\s)?(?:minutes?|mins?)\.?\s+read\s*\)\s*",
+    re.IGNORECASE,
+)
 EXTERNAL_LINK_RE = re.compile(r'<a href="([^"]+)"([^>]*)>')
 SCORE_RE = re.compile(r"\s*·?\s*Reliability Score:\s*([1-5])/5")
 H2_RE = re.compile(r"<h2>(.*?)</h2>", re.DOTALL)
@@ -242,6 +246,17 @@ def fav_button(headline: str) -> str:
     )
 
 
+def take_read_time(text: str) -> tuple[str, str]:
+    """Pull a leading `(N minute read)` off a story body.
+
+    Returns the display label (`N min read`) and the body with that prefix gone.
+    """
+    match = READ_TIME_RE.match(text)
+    if not match:
+        return "", text
+    return f"{int(match.group(1))} min read", text[match.end() :].strip()
+
+
 def enhance(
     article_html: str,
     *,
@@ -289,6 +304,7 @@ def enhance(
         for meta in metas:
             body = body.replace(meta, "", 1)
         body = body.strip()
+        read_time, body = take_read_time(body)
         summary = plain_text(body)
         source = ""
         score = ""
@@ -323,6 +339,7 @@ def enhance(
             "issueDate": issue_date,
             "issueLabel": issue_label,
             "thumbnail": thumb_path,
+            "readTime": read_time,
         }
         stories.append(payload)
         loading = "lazy"
@@ -342,12 +359,16 @@ def enhance(
                 f"</a>"
             )
         summary_html = f'<p class="story-summary">{body}</p>' if body else ""
+        read_html = (
+            f'<p class="read-time">{html.escape(read_time)}</p>' if read_time else ""
+        )
         data = html.escape(json.dumps(payload, ensure_ascii=False), quote=True)
         return (
             f'<article class="story" data-story-id="{payload["id"]}" data-story="{data}">\n'
             f"{media}\n"
             f'<div class="story-body">\n'
             f'<h3 class="item-title">{title_link}</h3>\n'
+            f"{read_html}\n"
             f"{summary_html}\n"
             f'<div class="story-foot">\n'
             f"{source_html if source or score else ''}\n"
