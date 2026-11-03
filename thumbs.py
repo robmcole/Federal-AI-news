@@ -39,7 +39,11 @@ USER_AGENT = (
     "(KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
 )
 
-STORY_LINE = re.compile(r"^\*\*\[.*?\]\((https?://[^)\s]+)\)\*\*\s*$")
+# Headlines are `**[Headline](url)**`, sometimes with trailing text such as
+# `(3 minute read)`. The optional suffix must not hide the story URL.
+STORY_LINE = re.compile(
+    r"^\*\*\[.*?\]\((https?://[^)\s]+)\)\*\*(?:\s+\S.*)?\s*$"
+)
 IMAGE_LINE = re.compile(r"^\*(?:Image|Thumbnail):\s*(https?://\S+?)\*\s*$")
 HEADING_LINE = re.compile(r"^##\s+")
 META_TAG = re.compile(r"<meta\b[^>]*>", re.IGNORECASE)

@@ -18,7 +18,7 @@ title: "Issue title"
 
 ## Section name
 
-**[Headline](https://example.com/story)**
+**[Headline](https://example.com/story)** (3 minute read)
 What happened and why it matters.
 *Source: Outlet name · Reliability Score: 4/5*
 *Primary document: [Document name](https://example.com/doc)*
@@ -26,6 +26,8 @@ What happened and why it matters.
 ```
 
 The filename date and the `date` field must match. Scores are 5 (official source), 4 (established outlet), 3 (analysis, vendor, or third-party copy), or 2 (needs a second source).
+
+A trailing read time, such as `(3 minute read)` or `(3 min read)`, is optional. The site shows it as a small “3 min read” label and still treats the line as the story link, so the thumbnail is fetched either way.
 
 `*Image:*` is optional. Put it with the source line when you want to force a thumbnail. If you leave it out, the build reads the story link’s `og:image` or `twitter:image`, saves a resized copy, and shows that on the card. When a preview can’t be fetched (SAM.gov pages often can’t), the card shows a tile with the outlet name instead of a broken image.
 
