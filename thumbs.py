@@ -39,7 +39,8 @@ USER_AGENT = (
     "(KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
 )
 
-STORY_LINE = re.compile(r"^\*\*\[.*?\]\((https?://[^)\s]+)\)\*\*\s*$")
+# A read-time note may follow the link, e.g. "**[Title](url)** (3 minute read)".
+STORY_LINE = re.compile(r"^\*\*\[.*?\]\((https?://[^)\s]+)\)\*\*(?:\s.*)?$")
 IMAGE_LINE = re.compile(r"^\*(?:Image|Thumbnail):\s*(https?://\S+?)\*\s*$")
 HEADING_LINE = re.compile(r"^##\s+")
 META_TAG = re.compile(r"<meta\b[^>]*>", re.IGNORECASE)
@@ -92,11 +93,15 @@ def normalize_story_blocks(body: str) -> str:
                 if look >= len(lines):
                     break
                 peek = lines[look].strip()
+                prev = result[-1].strip() if result else ""
+                # Keep a blank line after a list item so the list stays a list
+                # and the following lines are not pulled into that item.
                 if (
                     STORY_LINE.match(peek)
                     or peek.startswith("## ")
                     or peek.startswith("**TL;DR:**")
                     or peek.startswith("- ")
+                    or prev.startswith("- ")
                 ):
                     break
                 index = look
